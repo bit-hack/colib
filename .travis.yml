@@ -1,0 +1,26 @@
+language: cpp
+compiler:
+  - gcc
+  - clang
+  - scan-build
+
+sudo: false
+
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - cmake
+      - g++-4.8
+      - libc6-i386
+      - ninja-build
+
+script:
+  - export CXX="g++-4.8"
+  - export CC="gcc-4.8"
+  - cmake --version
+  - mkdir build
+  - cd build
+  - cmake -DCOLIB_TARGET=LINUX_AMD64 ..
+  - make
