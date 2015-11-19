@@ -21,10 +21,25 @@ extern "C" void co_ret_asm();
 
 // opaque co-routine structure
 struct co_thread_t {
+
+    // this threads stack pointer
     uint8_t * sp_;
+
+    // the thread that yielded to us
+    co_thread_t * callee_;
+
+    // the base allocation of this stack
     uint8_t * stack_;
     uint32_t  size_;
-    void    * user_;
+
+    // this threads user data
+    void * user_;
+
+    // the main thread
+    co_thread_t * main_;
+
+    // the allocator that created this thread
+    co_allocator_t * alloc_;
 };
 
 namespace {
@@ -106,6 +121,7 @@ bool co_create_win_x64(co_thread_t * t, co_func_t f, uint32_t size) {
     return true;
 }
 
+// todo: rename to generic x86
 // __cdecl x86 ABI
 // callee save: esi, ebx, ebp, esi, edi
 //
@@ -123,34 +139,6 @@ bool co_create_win_x86(co_thread_t * t, co_func_t f, uint32_t size) {
     return true;
 }
 
-// ARM V7 ABI
-// callee save: r4..r11 (r9*)
-// note: preserve the callee save VFPU registers?
-//
-bool co_create_linux_arm32(co_thread_t * t, co_func_t f, uint32_t size) {
-    uint8_t * & rsp = t->sp_;
-    // push the thread object
-    push<co_thread_t*>(rsp, t);
-    // return address for thread func
-    push<void*>(rsp, (void*) co_ret_asm);
-    // co-routine entry point
-    push<void*>(rsp, (void*) f);
-    // push dummy callee save registers
-    for (uint32_t i=0; i<7; ++i)
-        push<uint64_t>(rsp, 0);
-    return false;
-}
-
-// MIPS32 ABI
-// callee save: s0-s8
-//
-bool co_create_linux_mips32(co_thread_t * t, co_func_t f, uint32_t size) {
-    uint8_t * & sp = t->sp_;
-    // push the thread object
-    push<co_thread_t*>(sp, t);
-    return false;
-}
-
 // insert a cookie at the bottom of the stack
 void co_insert_guard(co_thread_t * t) {
     assert(t);
@@ -161,33 +149,47 @@ void co_insert_guard(co_thread_t * t) {
 // check for a valid cookie in the stack
 bool co_check_guard(co_thread_t * t) {
     assert(t);
+    // dont stack check the main thread
+    if (t == t->main_)
+        return true;
     assert(t->stack_);
     return memcmp(co_guard, t->stack_, sizeof(co_guard)) == 0;
 }
 
 } // namespace {}
 
-void co_yield(co_thread_t * self) {
+void co_yield(co_thread_t * self, co_thread_t * to) {
     assert(self);
-    if (self->sp_) {
-        co_yield_asm(self);
-        if (!co_check_guard(self)) {
+
+    if (!to) {
+        to = self->callee_;
+    }
+
+    assert(to);
+    to->callee_ = self;
+
+    if (to->sp_) {
+        co_yield_asm(to);
+        if (!co_check_guard(to)) {
             assert(!"stack smashed!");
         }
     }
 }
 
 co_thread_t * co_create(co_func_t f, uint32_t s, co_allocator_t *mem) {
-
     co_thread_t * t = (co_thread_t*)co_alloc(mem, sizeof (co_thread_t));
     if (!t)
         return nullptr;
     memset(t, 0, sizeof(co_thread_t));
-    t->size_  = s;
-    t->stack_ = (uint8_t*)co_alloc(mem, s);
+    t->alloc_  = mem;
+    t->main_   = nullptr;
+    t->callee_ = nullptr;
+    t->callee_ = nullptr;
+    t->size_   = s;
+    t->stack_  = (uint8_t*)co_alloc(mem, s);
+    t->sp_     = co_align(t->stack_ + s);
     assert(t->stack_);
     memset(t->stack_, 0x13, s);
-    t->sp_ = co_align(t->stack_ + s);
 #if debug
     printf ("sp 0x%p\n", (void*)t->sp_);
 #endif
@@ -201,12 +203,12 @@ co_thread_t * co_create(co_func_t f, uint32_t s, co_allocator_t *mem) {
     return nullptr;
 }
 
-void co_delete(co_thread_t *t, co_allocator_t *mem) {
+void co_delete(co_thread_t *t) {
     assert(t);
     if (t->stack_)
-        co_free(mem, t->stack_);
+        co_free(t->alloc_, t->stack_);
     memset(t, 0, sizeof(co_thread_t));
-    co_free(mem, t);
+    co_free(t->alloc_, t);
 }
 
 void co_set_user(co_thread_t * t, void *data) {
@@ -225,4 +227,20 @@ int co_status(co_thread_t *t) {
         return COLIB_STATUS_YIELDING;
     else
         return COLIB_STATUS_ENDED;
+}
+
+co_thread_t * co_init(co_allocator_t * alloc) {
+    co_thread_t * t = (co_thread_t*) co_alloc(alloc, sizeof(co_thread_t));
+    memset(t, 0, sizeof(co_thread_t));
+    t->alloc_  = alloc;
+    t->callee_ = nullptr;
+    t->main_   = t;
+    t->size_   = ~0u;
+    t->sp_     = nullptr;
+    t->user_   = 0;
+    return t;
+}
+
+void co_yield_to_main(co_thread_t * self) {
+    co_yield(self, self->main_);
 }

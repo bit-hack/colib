@@ -26,6 +26,11 @@ struct co_allocator_t {
  */
 typedef void (*co_func_t)(co_thread_t *self);
 
+/* encapsulate the main thread
+ *
+ */
+co_thread_t * co_init(co_allocator_t * alloc);
+
 /* co_create
  *  create a co-routine thread
  *
@@ -47,30 +52,26 @@ co_thread_t * co_create(co_func_t func, uint32_t size, co_allocator_t *alloc);
  *  yield to the thread stored in the co_thread_t struct
  *
  * params:
- *  thread  - the thread instance to yield to
+ *  self  - the thread instance that is yielding
+ *  to    - the thread that will begin executing
  *
  * note:
- *  a co-routine can be executed by calling co_yield with a valid co_thread_t
- *  instance from the main thread.
- *
- *  upon entering a co-routine function, the main threads context
- *  is stored inside of the argument 'self' and a call to co_yield()
- *  will halt the current co-routine and switch back to the main thread.
+ *  if 'to' is nullptr then this thread will yield to the previous thread
  */
-void co_yield(co_thread_t *thread);
+void co_yield(co_thread_t * self, co_thread_t * to = nullptr);
+
+/* yield the current co-routine to the main thread
+ *
+ */
+void co_yield_to_main(co_thread_t * self);
 
 /* co_delete
  *  delete a co-routine instance
  *
  * params:
  *  thread  - a co-routine thread instance
- *  alloc   - a custom memory allocator to use (can be nullptr)
- *
- * notes:
- *  if nullptr is passed in as the 'alloc' parameter, then all memory
- *  allocations will be dealt with via 'new' and 'delete'.
  */
-void co_delete(co_thread_t *thread, co_allocator_t *alloc);
+void co_delete(co_thread_t *thread);
 
 /* co_status
  *  get the execution status of a co-routine

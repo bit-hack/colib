@@ -3,11 +3,10 @@ project(colib)
 
 set(COLIB_TARGET "target" CACHE STRING "Set CoLib target processor and ABI")
 set_property(CACHE COLIB_TARGET PROPERTY STRINGS 
-  WIN_x86 
-  WIN_x86_64 
-  LINUX_AMD64 
-  LINUX_ARMV7A 
-  LINUX_MIPSEL)
+  WIN_x86
+  WIN_x86_64
+  LINUX_x86
+  LINUX_AMD64)
 
 set(SOURCE_FILES colib.cpp coconfig.h colib.h)
 
@@ -41,6 +40,15 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" OR ${CMAKE_CXX_COMPILER_ID} STREQUAL 
     set(ASM_FILES colib_gas_linux_x64.s)
     message(STATUS "colib target is linux x64")
   endif()
+
+  if (${COLIB_TARGET} STREQUAL "LINUX_x86")
+    message(STATUS "colib target is LINUX x86")
+    set(ASM_FILES colib_gas_linux_x86.s)
+  endif()
+endif()
+
+if (NOT ASM_FILES)
+  message(FATAL_ERROR "COLIB_TARGET must be specified")
 endif()
 
 SET(ASM_OPTIONS "-x assembler-with-cpp")

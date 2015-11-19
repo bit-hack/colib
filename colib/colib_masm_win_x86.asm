@@ -34,7 +34,6 @@ co_yield_asm ENDP
 ; address the coroutine thread object has been pushed.  we pop that
 ; from the stack and switch contexts, back to the main thread.
 co_ret_asm PROC
-    int 3
     ; pop the thread object into eax
     pop eax
     ; swap( thread->sp_, esp )

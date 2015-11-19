@@ -24,6 +24,8 @@ void thread_proc( co_thread_t * co ) {
 extern
 int32_t test_factoral() {
 
+    co_thread_t * host = co_init(nullptr);
+
     co_thread_t * thread = co_create(thread_proc, STACK_SIZE, nullptr);
     if (!thread)
         return -1;
@@ -31,14 +33,14 @@ int32_t test_factoral() {
     co_set_user(thread, (void*) ~0);
 
     for (int i=0; i<100; i++) {
-        co_yield(thread);
+        co_yield(host, thread);
         if (co_get_user(thread) != (void*)~0)
             break;
     }
 
     int64_t result = (int64_t)co_get_user(thread);
 
-    co_delete(thread, nullptr);
+    co_delete(thread);
 
     if (result != 120)
         return -2;

@@ -7,7 +7,7 @@
 ;   thread -> rcx
 ;
 ; note: we dont touch the RCX register where 'thread' was passed
-;		so that it becomes a parameter to the thread function.
+;       so that it becomes a parameter to the thread function.
 ;
 co_yield_asm PROC
 ;    int 3
@@ -20,8 +20,11 @@ co_yield_asm PROC
     push R13
     push R14
     push R15
-    ; swap( thread->sp_, rcx )
-    xchg [rcx], rsp
+    ; thread->callee_->sp_ = RSP
+    mov QWORD PTR rdx, [rcx+8]
+    mov QWORD PTR [rdx], rsp
+    ; RSP = thread->sp_
+    mov QWORD PTR rsp, [rcx]
     ; pop callee save registers
     pop R15
     pop R14
@@ -44,10 +47,11 @@ co_ret_asm PROC
     ; we move our thread object into rcx
     ; we add 32 here to step over the 'shadow space'
     mov rcx, [rsp+32]
-    ; swap( thread->sp_, rsp )
-    xchg [rcx], rsp
+    ; RSP = thread->callee_->sp_
+    mov QWORD PTR rdx, [rcx+8]
+    mov QWORD PTR rsp, [rdx]
     ; thread->sp_ = nullptr
-    mov QWORD PTR [rcx+0], 0
+    mov QWORD PTR [rcx], 0
     ; pop callee save registers
     pop R15
     pop R14

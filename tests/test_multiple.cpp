@@ -50,7 +50,7 @@ struct co_thread_ex_t {
 
     ~co_thread_ex_t() {
         if (t_)
-            co_delete(t_, alloc_);
+            co_delete(t_);
     }
 
     bool alive() const {
@@ -70,9 +70,9 @@ struct co_thread_ex_t {
         return nullptr;
     }
 
-    void yield() {
+    void yield(co_thread_t * host) {
         if (t_)
-            co_yield(t_);
+            co_yield(host, t_);
     }
 
     co_thread_t * t_;
@@ -123,6 +123,8 @@ int32_t test_multiple() {
     params_t params;
     params.val_ = 0;
 
+    co_thread_t * host = co_init(nullptr);
+
     co_thread_ex_t t1(thread_proc_a, THREAD_SIZE, nullptr);
     co_thread_ex_t t2(thread_proc_b, THREAD_SIZE, nullptr);
     co_thread_ex_t t3(thread_proc_b, THREAD_SIZE, nullptr);
@@ -135,9 +137,9 @@ int32_t test_multiple() {
     t3.set_user(&params);
 
     for (int i=0; i<100; i++) {
-        t1.yield();
-        t2.yield();
-        t3.yield();
+        t1.yield(host);
+        t2.yield(host);
+        t3.yield(host);
     }
 
     if (params.val_ != 12886961605791636653ull)

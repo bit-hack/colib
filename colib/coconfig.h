@@ -8,15 +8,6 @@
   #if defined(__i386__)
     #define IS_X86
   #endif
-  #if defined(__arm__)
-    #define IS_ARM32
-  #endif
-  #if defined(__MIPSEL__)
-    #define IS_MIPSEL
-  #endif
-  #if defined(__MIPSEB__)
-    #define IS_MIPSEB
-  #endif
 #endif
 
 #if defined(_MSC_VER)
@@ -44,5 +35,5 @@
 
 // throw error if CO_CREATE is not defined
 #if !defined(CO_CREATE)
-  #error "unsupported platform"
+  #error "unsupported colib platform"
 #endif

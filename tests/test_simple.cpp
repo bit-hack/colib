@@ -10,7 +10,7 @@ static int32_t value = 0;
 static
 void thread_func(co_thread_t * co) {
     value = 1;
-    co_yield(co);
+    co_yield(co, nullptr);
     value = 2;
     co_yield(co);
     value = 13;
@@ -19,18 +19,21 @@ void thread_func(co_thread_t * co) {
 }
 
 int32_t test_simple() {
+
+    co_thread_t * host = co_init(nullptr);
+
     co_thread_t * thread = co_create (thread_func, 1024 * 512, nullptr);
     test_assert(thread);
     test_assert(value == 0);
-    co_yield(thread);
+    co_yield(host, thread);
     test_assert(value == 1);
-    co_yield(thread);
+    co_yield(host, thread);
     test_assert(value == 2);
-    co_yield(thread);
+    co_yield(host, thread);
     test_assert(value == 13);
-    co_yield(thread);
+    co_yield(host, thread);
     test_assert(value == 29);
-    co_yield(thread);
-    co_delete(thread, nullptr);
+    co_yield(host, thread);
+    co_delete(thread);
     return 0;
 }
