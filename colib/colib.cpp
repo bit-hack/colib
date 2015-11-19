@@ -123,6 +123,23 @@ bool co_create_win_x86(co_thread_t * t, co_func_t f, uint32_t size) {
     return true;
 }
 
+// AMD64 ABI used by x64 Linux
+// callee save: rbp, rbx, r12..r15
+//
+bool co_create_mac_x64(co_thread_t * t, co_func_t f, uint32_t size) {
+    uint8_t * & rsp = t->sp_;
+    // push the thread object
+    push<co_thread_t*>(rsp, t);
+    // return address for thread func
+    push<void*>(rsp, (void*) co_ret_asm);
+    // co-routine entry point
+    push<void*>(rsp, (void*) f);
+    // push dummy callee save registers
+    for (uint32_t i=0; i<6; ++i)
+        push<void*>(rsp, 0);
+    return true;
+}
+
 // ARM V7 ABI
 // callee save: r4..r11 (r9*)
 // note: preserve the callee save VFPU registers?

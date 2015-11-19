@@ -2,23 +2,43 @@ cmake_minimum_required(VERSION 2.8)
 project(colib)
 
 set(COLIB_TARGET "target" CACHE STRING "Set CoLib target processor and ABI")
-set_property(CACHE COLIB_TARGET PROPERTY STRINGS 
-  WIN_x86 
-  WIN_x86_64 
-  LINUX_AMD64 
-  LINUX_ARMV7A 
+set_property(CACHE COLIB_TARGET PROPERTY STRINGS
+  WIN_x86
+  WIN_x86_64
+  MAC_AMD64
+  LINUX_ARMV7A
   LINUX_MIPSEL)
+
+if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  if(${CMAKE_SIZEOF_VOID_P} EQUAL 8)
+    set(COLIB_TARGET WIN_x86_64)
+  else()
+    set(COLIB_TARGET WIN_x86)
+  endif()
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+  if(${CMAKE_SIZEOF_VOID_P} EQUAL 8)
+    set(COLIB_TARGET LINUX_AMD64)
+  else()
+    message(FATAL_ERROR "Linux 32 bit not supported")
+  endif()
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  if(${CMAKE_SIZEOF_VOID_P} EQUAL 8)
+    set(COLIB_TARGET MAC_AMD64)
+  else()
+    message(FATAL_ERROR "OS X 32 bit not supported")
+  endif()
+endif()
 
 set(SOURCE_FILES colib.cpp coconfig.h colib.h)
 
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
   enable_language(ASM_MASM)
-  
+
   if (${COLIB_TARGET} STREQUAL "WIN_x86_64")
     message(STATUS "colib target is MSVC x64")
     set(ASM_FILES colib_masm_win_x64.asm)
   endif()
-  
+
   if (${COLIB_TARGET} STREQUAL "WIN_x86")
     message(STATUS "colib target is MSVC x86")
     set(ASM_FILES colib_masm_win_x86.asm)
@@ -40,6 +60,11 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" OR ${CMAKE_CXX_COMPILER_ID} STREQUAL 
   if (${COLIB_TARGET} STREQUAL "LINUX_AMD64")
     set(ASM_FILES colib_gas_linux_x64.s)
     message(STATUS "colib target is linux x64")
+  endif()
+
+  if (${COLIB_TARGET} STREQUAL "MAC_AMD64")
+    set(ASM_FILES colib_gas_mac_x64.s)
+    message(STATUS "colib target is Mac OS X x64")
   endif()
 endif()
 

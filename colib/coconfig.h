@@ -29,6 +29,13 @@
   #endif
 #endif
 
+#if defined(__APPLE__)
+  #define IS_MAC
+  #if defined(__amd64__) || defined(__x86_64__)
+    #define IS_X64
+  #endif
+#endif
+
 #if defined(IS_LINUX) && defined(IS_X64)
   #define CO_CREATE co_create_linux_x64
 #endif
@@ -40,6 +47,9 @@
 #endif
 #if defined(IS_LINUX) && defined(IS_ARM32)
   #define CO_CREATE co_create_linux_arm32
+#endif
+#if defined(IS_MAC) && defined(IS_X64)
+  #define CO_CREATE co_create_mac_x64
 #endif
 
 // throw error if CO_CREATE is not defined
