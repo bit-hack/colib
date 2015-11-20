@@ -35,9 +35,11 @@ co_thread_t * co_init(co_allocator_t * alloc);
  *  create a co-routine thread
  *
  * params:
+ *  self    - 
  *  func    - thread function to execute
  *  size    - size of the co-routine stack to allocate
  *  alloc   - custom memory allocator (can be nullptr)
+ *  user    - user data for this coroutine
  *
  * returns:
  *  this function returns a co-routine thread instance, which can be resumed
@@ -46,7 +48,11 @@ co_thread_t * co_init(co_allocator_t * alloc);
  *  if nullptr is passed in as the 'alloc' parameter, then all memory
  *  allocations will be dealt with via 'new' and 'delete'.
  */
-co_thread_t * co_create(co_func_t func, uint32_t size, co_allocator_t *alloc);
+co_thread_t * co_create(co_thread_t * self, 
+                        co_func_t func, 
+                        uint32_t size, 
+                        co_allocator_t *alloc=nullptr, 
+                        void * user=nullptr);
 
 /* co_yield
  *  yield to the thread stored in the co_thread_t struct
@@ -58,7 +64,8 @@ co_thread_t * co_create(co_func_t func, uint32_t size, co_allocator_t *alloc);
  * note:
  *  if 'to' is nullptr then this thread will yield to the previous thread
  */
-void co_yield(co_thread_t * self, co_thread_t * to = nullptr);
+void co_yield(co_thread_t * self, 
+              co_thread_t * to = nullptr);
 
 /* yield the current co-routine to the main thread
  *
@@ -97,7 +104,8 @@ int co_status(co_thread_t *thread);
  *  to be passed between a co-routine and its caller.  typically set by the
  *  main thread and accessed for use in the co-routine.
  */
-void co_set_user(co_thread_t *thread, void *data);
+void co_set_user(co_thread_t *thread, 
+                 void *data);
 
 /* co_get_user 
  *  retrive the user field of a co_thread_t instance.

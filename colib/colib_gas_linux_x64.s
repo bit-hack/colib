@@ -17,8 +17,11 @@ co_yield_asm:
     push %r13
     push %r14
     push %r15
-    # swap( rsp, thread->rsp_ )
-    xchg 0(%rdi), %rsp
+
+    movq 8(%rdi), %rdx
+    movq %rsp, 0(%rdx)
+    movq 0(%rdi), %rsp
+
     # pop all callee save register
     pop %r15
     pop %r14
@@ -37,10 +40,12 @@ co_yield_asm:
 co_ret_asm:
     # pop the thread object into rdi
     pop %rdi
-    # swap( rsp, thread->rsp_ )
-    xchg 0(%rdi), %rsp
-    # thread->rsp_ = nullptr
+
+    movq 8(%rdi), %rdx
+    movq 0(%rdx), %rsp
+
     movq $0, (%rdi)
+
     # pop all callee save register
     pop %r15
     pop %r14

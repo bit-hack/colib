@@ -161,10 +161,11 @@ bool co_check_guard(co_thread_t * t) {
 void co_yield(co_thread_t * self, co_thread_t * to) {
     assert(self);
 
-    if (!to) {
-        to = self->callee_;
-    }
+    if (self == to)
+        return;
 
+    if (!to)
+        to = self->callee_;
     assert(to);
     to->callee_ = self;
 
@@ -176,18 +177,19 @@ void co_yield(co_thread_t * self, co_thread_t * to) {
     }
 }
 
-co_thread_t * co_create(co_func_t f, uint32_t s, co_allocator_t *mem) {
+co_thread_t * co_create(co_thread_t * self, co_func_t f, uint32_t s, co_allocator_t *mem, void * user) {
     co_thread_t * t = (co_thread_t*)co_alloc(mem, sizeof (co_thread_t));
     if (!t)
         return nullptr;
     memset(t, 0, sizeof(co_thread_t));
     t->alloc_  = mem;
-    t->main_   = nullptr;
+    t->main_   = self->main_;
     t->callee_ = nullptr;
     t->callee_ = nullptr;
     t->size_   = s;
     t->stack_  = (uint8_t*)co_alloc(mem, s);
     t->sp_     = co_align(t->stack_ + s);
+    t->user_   = user;
     assert(t->stack_);
     memset(t->stack_, 0x13, s);
 #if debug
@@ -205,7 +207,7 @@ co_thread_t * co_create(co_func_t f, uint32_t s, co_allocator_t *mem) {
 
 void co_delete(co_thread_t *t) {
     assert(t);
-    if (t->stack_)
+    if (t != t->main_ && t->stack_)
         co_free(t->alloc_, t->stack_);
     memset(t, 0, sizeof(co_thread_t));
     co_free(t->alloc_, t);
