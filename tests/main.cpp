@@ -95,6 +95,5 @@ int main() {
         }
     }
 
-    getchar();
     return fails;
 }

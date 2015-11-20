@@ -11,7 +11,6 @@
 static void * param = (void*) "test";
 
 static uint32_t num_allocs = 0;
-static uint32_t num_frees  = 0;
 
 static
 void * al_alloc(uint32_t size, void * user) {
@@ -26,9 +25,8 @@ static
 void al_free(void * mem, void * user) {
     assert(mem != nullptr);
     assert(user == param);
-    ++num_frees;
+    --num_allocs;
     free(mem);
-
 }
 
 static
