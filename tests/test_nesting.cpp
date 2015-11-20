@@ -10,8 +10,8 @@
 static const uint32_t num_threads = 128;
 
 struct args_t {
+    uint32_t head_;
     co_thread_t * thread_[num_threads];
-    uint32_t head_ = 0;
 };
 
 static
@@ -34,7 +34,7 @@ void thread(co_thread_t * self) {
 
 int32_t test_nesting() {
 
-    args_t args;
+    args_t args = {0};
 
     co_thread_t * host = co_init(nullptr);
 
