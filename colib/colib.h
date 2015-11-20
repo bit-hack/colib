@@ -40,7 +40,7 @@ typedef void (*co_func_t)(co_thread_t *self);
  * \param alloc The custom memory allocator to use for all memory allocations.
  * Set this parameter to nullptr to use new and delete internally.
  */
-co_thread_t * co_init(co_allocator_t * alloc);
+co_thread_t * co_init(co_allocator_t * mem);
 
 /** \brief Create a coroutine.
  *

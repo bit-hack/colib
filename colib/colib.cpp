@@ -121,11 +121,10 @@ bool co_create_win_x64(co_thread_t * t, co_func_t f, uint32_t size) {
     return true;
 }
 
-// todo: rename to generic x86
 // __cdecl x86 ABI
 // callee save: esi, ebx, ebp, esi, edi
 //
-bool co_create_win_x86(co_thread_t * t, co_func_t f, uint32_t size) {
+bool co_create_generic_x86(co_thread_t * t, co_func_t f, uint32_t size) {
     uint8_t * & esp = t->sp_;
     // push the thread object
     push<co_thread_t*>(esp, t);
@@ -209,7 +208,6 @@ void co_delete(co_thread_t *t) {
     assert(t);
     if (t != t->main_ && t->stack_)
         co_free(t->alloc_, t->stack_);
-    memset(t, 0, sizeof(co_thread_t));
     co_free(t->alloc_, t);
 }
 
@@ -231,10 +229,10 @@ int co_status(co_thread_t *t) {
         return COLIB_STATUS_ENDED;
 }
 
-co_thread_t * co_init(co_allocator_t * alloc) {
-    co_thread_t * t = (co_thread_t*) co_alloc(alloc, sizeof(co_thread_t));
+co_thread_t * co_init(co_allocator_t * mem) {
+    co_thread_t * t = (co_thread_t*) co_alloc(mem, sizeof(co_thread_t));
     memset(t, 0, sizeof(co_thread_t));
-    t->alloc_  = alloc;
+    t->alloc_  = mem;
     t->callee_ = nullptr;
     t->main_   = t;
     t->size_   = ~0u;
