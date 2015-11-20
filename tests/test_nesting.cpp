@@ -28,7 +28,6 @@ void thread(co_thread_t * self) {
         co_yield(self, next);
     }
 
-    // CANT USE ASSERTS HERE, IN RELEASE BUILD
     assert(!"Should not get here");
 }
 
