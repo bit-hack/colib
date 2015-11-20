@@ -18,3 +18,8 @@
 - port to arm
 - use -m32 to test out x86 linux
 - make sure float registers are not clobbered
+
+. This is required on linux for x86 builds:
+  sudo apt-get install g++-multilib libc6-dev-i386
+  CMAKE_CXX_FLAGS = -m32
+  CMAKE_C_FLAGS = -m32

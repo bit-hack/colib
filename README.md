@@ -17,12 +17,16 @@ Platform support
 |Linux    |Status       |  
 |---------|-------------|
 | AMD64   | Stable      |  
-| i386    |             |  
-| Mipsel  | Development |  
-| Armv7   | Development |  
+| i386    | Stable      |  
+| Mipsel  |             |  
+| Armv7   |             |  
 | Aarch64 |             |  
 | Mips64  |             |  
 | PowerPC |             |  
+
+|OS X    |Status       |
+|--------|-------------|
+| X86_64 | In Progress |
 
 Compiler support:
 
@@ -30,7 +34,6 @@ Compiler support:
 |----------|---------------|
 | GCC      | Visual Studio |
 | CLANG    |               |
-
 
 
 ## Todo:
