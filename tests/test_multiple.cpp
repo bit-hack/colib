@@ -6,13 +6,13 @@ extern int32_t test_multiple();
 
 static const int THREAD_SIZE = 1024 * 32;
 
-struct stack_t {
+struct lifo_t {
 
     static const int MAX = 64;
     uint64_t data_[MAX];
     uint64_t head_;
 
-    stack_t()
+    lifo_t()
         : head_(0)
     {
     }
@@ -80,7 +80,7 @@ struct co_thread_ex_t {
 };
 
 struct params_t {
-    stack_t stack_;
+    lifo_t stack_;
     uint64_t val_;
 };
 
