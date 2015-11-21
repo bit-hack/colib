@@ -1,18 +1,19 @@
-#include <assert.h>
 #include <stdint.h>
+#include "test.h"
+#include "coconfig.h"
 #include "colib.h"
 
 extern int32_t test_multiple();
 
 static const int THREAD_SIZE = 1024 * 32;
 
-struct stack_t {
+struct lifo_t {
 
     static const int MAX = 64;
     uint64_t data_[MAX];
     uint64_t head_;
 
-    stack_t()
+    lifo_t()
         : head_(0)
     {
     }
@@ -42,15 +43,15 @@ struct stack_t {
 
 struct co_thread_ex_t {
 
-    co_thread_ex_t(co_func_t func, uint32_t size, co_allocator_t *alloc)
+    co_thread_ex_t(co_thread_t * group, co_func_t func, uint32_t size, co_allocator_t *alloc)
         : alloc_(alloc)
     {
-        t_ = co_create(func, size, alloc);
+        t_ = co_create(group, func, size, alloc);
     }
 
     ~co_thread_ex_t() {
         if (t_)
-            co_delete(t_, alloc_);
+            co_delete(t_);
     }
 
     bool alive() const {
@@ -70,9 +71,9 @@ struct co_thread_ex_t {
         return nullptr;
     }
 
-    void yield() {
+    void yield(co_thread_t * self) {
         if (t_)
-            co_yield(t_);
+            co_yield(self, t_);
     }
 
     co_thread_t * t_;
@@ -80,18 +81,9 @@ struct co_thread_ex_t {
 };
 
 struct params_t {
-    stack_t stack_;
+    lifo_t stack_;
     uint64_t val_;
 };
-
-static
-uint64_t rand64(void) {
-    static uint64_t x = 1;
-    x ^= x >> 12;
-    x ^= x << 25;
-    x ^= x >> 27;
-    return x * UINT64_C(2685821657736338717);
-}
 
 static
 void thread_proc_a(co_thread_t * co) {
@@ -123,9 +115,11 @@ int32_t test_multiple() {
     params_t params;
     params.val_ = 0;
 
-    co_thread_ex_t t1(thread_proc_a, THREAD_SIZE, nullptr);
-    co_thread_ex_t t2(thread_proc_b, THREAD_SIZE, nullptr);
-    co_thread_ex_t t3(thread_proc_b, THREAD_SIZE, nullptr);
+    co_thread_t * host = co_init(nullptr);
+
+    co_thread_ex_t t1(host, thread_proc_a, THREAD_SIZE, nullptr);
+    co_thread_ex_t t2(host, thread_proc_b, THREAD_SIZE, nullptr);
+    co_thread_ex_t t3(host, thread_proc_b, THREAD_SIZE, nullptr);
 
     if (! (t1.alive() && t2.alive() && t3.alive()))
         return -1;
@@ -135,12 +129,12 @@ int32_t test_multiple() {
     t3.set_user(&params);
 
     for (int i=0; i<100; i++) {
-        t1.yield();
-        t2.yield();
-        t3.yield();
+        t1.yield(host);
+        t2.yield(host);
+        t3.yield(host);
     }
 
-    if (params.val_ != 12886961605791636653ull)
+    if (params.val_ != 0x8bc8e4be629f41b3ull)
         return -2;
 
     return 0;

@@ -1,38 +1,63 @@
-#if 0
+/*
+ * This test checks that the custom memory allocators are called and
+ * used correctly.
+ */
+
 #include <stdint.h>
+#include <stdlib.h>
+#include "test.h"
+#include "coconfig.h"
 #include "colib.h"
 
-#define test_assert(X) if (!(X)) {return -1;}
+static void * param = (void*) "test";
 
-extern int32_t test_simple();
-
-static int32_t value = 0;
+static uint32_t num_allocs = 0;
 
 static
-void thread_func(co_thread_t * co) {
-    value = 1;
-    co_yield(co);
-    value = 2;
-    co_yield(co);
-    value = 13;
-    co_yield(co);
-    value = 29;
+void * al_alloc(uint32_t size, void * user) {
+    assert(size > 0);
+    assert(user == param);
+    ++num_allocs;
+    return malloc(size);
+
 }
 
-int32_t test_simple() {
-    co_thread_t * thread = co_create (thread_func, 1024 * 512, nullptr);
-    test_assert(thread);
-    test_assert(value == 0);
-    co_yield(thread);
-    test_assert(value == 1);
-    co_yield(thread);
-    test_assert(value == 2);
-    co_yield(thread);
-    test_assert(value == 13);
-    co_yield(thread);
-    test_assert(value == 29);
-    co_yield(thread);
-    co_delete(thread, nullptr);
+static
+void al_free(void * mem, void * user) {
+    assert(mem != nullptr);
+    assert(user == param);
+    --num_allocs;
+    free(mem);
+}
+
+static
+void thread_func(co_thread_t * self) {
+}
+
+int32_t test_allocator() {
+
+    assert(num_allocs == 0);
+    uint32_t old_allocs = num_allocs;
+
+    co_allocator_t alloc = {al_alloc, al_free, param};
+
+    co_thread_t * host = co_init(&alloc);
+    assert(host);
+    assert(num_allocs > old_allocs);
+    old_allocs = num_allocs;
+
+    co_thread_t * thread = co_create (host, thread_func, 1024 * 512, &alloc);
+    assert(thread);
+    assert(num_allocs > old_allocs);
+    old_allocs = num_allocs;
+
+    co_delete(thread);
+    assert(num_allocs < old_allocs);
+    old_allocs = num_allocs;
+
+    co_delete(host);
+    assert(num_allocs < old_allocs);
+    old_allocs = num_allocs;
+
     return 0;
 }
-#endif

@@ -1,16 +1,16 @@
 #pragma once
 #include <stdint.h>
 
-/* co_status() return codes
+/* \brief Return codes for co_status().
  */
 #define COLIB_STATUS_ENDED     0
 #define COLIB_STATUS_YIELDING  1
 
-/* opaque co-routine thread struct
+/* \brief The struct that encapsulates a coroutine thread.
  */
 struct co_thread_t;
 
-/* custom memory allocator type for colib allocations
+/** \brief Custom memory allocation struct.
  */
 struct co_allocator_t {
     void * (*alloc_)(uint32_t size, void * user);
@@ -18,93 +18,66 @@ struct co_allocator_t {
     void * user_;
 };
 
-/* co-routine thread function prototype
+/** \brief A coroutine prototype.
  *
- * if a co-routine function returns then an automatic yield
- * will occur to the callee.  the status of the thread will also
- * be reported as 'exited'.
+ * A coroutine is specified as a C style function and must have the following
+ * prototype.
+ *
+ * If a co-routine function returns then an automatic yield will occur to the
+ * previously executing thread.  the status of the thread will also report as 
+ * COLIB_STATUS_ENDED.
+ *
+ * \param self The thread object encapsulating the current coroutine.
  */
 typedef void (*co_func_t)(co_thread_t *self);
 
-/* co_create
- *  create a co-routine thread
+/** \brief Get the main thread as a coroutine.
  *
- * params:
- *  func    - thread function to execute
- *  size    - size of the co-routine stack to allocate
- *  alloc   - custom memory allocator (can be nullptr)
+ * This function encapsulates the main thread in a thread object.  This allows
+ * the main thread to yield to coroutines, and must be called before any other
+ * colib functions.
  *
- * returns:
- *  this function returns a co-routine thread instance, which can be resumed
- *  via co_yield().
- *
- *  if nullptr is passed in as the 'alloc' parameter, then all memory
- *  allocations will be dealt with via 'new' and 'delete'.
+ * \param alloc The custom memory allocator to use for all memory allocations.
+ * Set this parameter to nullptr to use new and delete internally.
  */
-co_thread_t * co_create(co_func_t func, uint32_t size, co_allocator_t *alloc);
+co_thread_t * co_init(co_allocator_t * mem);
 
-/* co_yield
- *  yield to the thread stored in the co_thread_t struct
+/** \brief Create a coroutine.
  *
- * params:
- *  thread  - the thread instance to yield to
- *
- * note:
- *  a co-routine can be executed by calling co_yield with a valid co_thread_t
- *  instance from the main thread.
- *
- *  upon entering a co-routine function, the main threads context
- *  is stored inside of the argument 'self' and a call to co_yield()
- *  will halt the current co-routine and switch back to the main thread.
  */
-void co_yield(co_thread_t *thread);
+co_thread_t * co_create(co_thread_t * self, 
+                        co_func_t func, 
+                        uint32_t size, 
+                        co_allocator_t *alloc=0,
+                        void * user=0);
 
-/* co_delete
- *  delete a co-routine instance
- *
- * params:
- *  thread  - a co-routine thread instance
- *  alloc   - a custom memory allocator to use (can be nullptr)
- *
- * notes:
- *  if nullptr is passed in as the 'alloc' parameter, then all memory
- *  allocations will be dealt with via 'new' and 'delete'.
+/** \brief Context switch to a different coroutine.
  */
-void co_delete(co_thread_t *thread, co_allocator_t *alloc);
+void co_yield(co_thread_t * self, 
+              co_thread_t * to=0);
 
-/* co_status
- *  get the execution status of a co-routine
+/** \brief Context switch to the main thread.
  *
- * params:
- *  thread  - a co-routine thread instance
- *
- * returns:
- *  COLIB_THREAD_ENDED    - co-routine has exited
- *  COLIB_THREAD_YIELDING - co-routine is suspended
+ */
+void co_yield_to_main(co_thread_t * self);
+
+/** \brief Delete a coroutine.
+ */
+void co_delete(co_thread_t *thread);
+
+/** \brief Return the execution status of a coroutine.
  */
 int co_status(co_thread_t *thread);
 
-/* co_set_user
- *  set the user field of a co_thread_t instance.
+/** \brief Set the user data of a coroutine.
  *
- * params:
- *  thread  - a co-routine thread instance
- *  data    - a (void*) to be written to the user field
- *
- * note:
- *  the primary purpose of the user field is to allow arbitrary data
- *  to be passed between a co-routine and its caller.  typically set by the
- *  main thread and accessed for use in the co-routine.
+ * The primary purpose of the user field is to allow arbitrary data to be
+ * passed between a co-routine and its caller.
  */
-void co_set_user(co_thread_t *thread, void *data);
+void co_set_user(co_thread_t *thread, 
+                 void *data);
 
-/* co_get_user 
- *  retrive the user field of a co_thread_t instance.
+/** \brief Get the user data of a coroutine.
  *
- * params:
- *  thread  - a co-routine thread instance
- *
- * returns:
- *  the (void*) that had previously been set via co_set_user.
  */
 void * co_get_user(co_thread_t *thread);

@@ -8,15 +8,6 @@
   #if defined(__i386__)
     #define IS_X86
   #endif
-  #if defined(__arm__)
-    #define IS_ARM32
-  #endif
-  #if defined(__MIPSEL__)
-    #define IS_MIPSEL
-  #endif
-  #if defined(__MIPSEB__)
-    #define IS_MIPSEB
-  #endif
 #endif
 
 #if defined(_MSC_VER)
@@ -32,11 +23,14 @@
 #if defined(IS_LINUX) && defined(IS_X64)
   #define CO_CREATE co_create_linux_x64
 #endif
+#if defined(IS_LINUX) && defined(IS_X86)
+  #define CO_CREATE co_create_generic_x86
+#endif
 #if defined(IS_WINDOWS) && defined(IS_X64)
   #define CO_CREATE co_create_win_x64
 #endif
 #if defined(IS_WINDOWS) && defined(IS_X86)
-  #define CO_CREATE co_create_win_x86
+  #define CO_CREATE co_create_generic_x86
 #endif
 #if defined(IS_LINUX) && defined(IS_ARM32)
   #define CO_CREATE co_create_linux_arm32
@@ -44,5 +38,10 @@
 
 // throw error if CO_CREATE is not defined
 #if !defined(CO_CREATE)
-  #error "unsupported platform"
+  #error "unsupported colib platform"
+#endif
+
+// make sure nullptr is defined
+#if !defined(_MSC_VER) && __cplusplus <= 199711L
+  #define nullptr 0
 #endif
