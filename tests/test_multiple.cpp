@@ -6,6 +6,7 @@ extern int32_t test_multiple();
 
 static const int THREAD_SIZE = 1024 * 32;
 
+namespace test {
 struct stack_t {
 
     static const int MAX = 64;
@@ -13,32 +14,33 @@ struct stack_t {
     uint64_t head_;
 
     stack_t()
-        : head_(0)
+      : head_(0)
     {
     }
 
     void push(uint64_t v) {
-        assert(head_<MAX);
-        data_[head_++] = v;
+      assert(head_<MAX);
+      data_[head_++] = v;
     }
 
     uint64_t pop() {
-        assert(head_>0);
-        return data_[--head_];
+      assert(head_>0);
+      return data_[--head_];
     }
 
     uint64_t size() const {
-        return head_;
+      return head_;
     }
 
     bool full() const {
-        return head_ >= MAX;
+      return head_ >= MAX;
     }
 
     bool empty() const {
-        return head_ == 0;
+      return head_ == 0;
     }
 };
+}
 
 struct co_thread_ex_t {
 
@@ -80,7 +82,7 @@ struct co_thread_ex_t {
 };
 
 struct params_t {
-    stack_t stack_;
+    test::stack_t stack_;
     uint64_t val_;
 };
 
