@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <math.h>
 #include "test.h"
+#include "coconfig.h"
 #include "colib.h"
 
 // this coroutine function computes an iterative square route

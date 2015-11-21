@@ -48,13 +48,13 @@ co_thread_t * co_init(co_allocator_t * mem);
 co_thread_t * co_create(co_thread_t * self, 
                         co_func_t func, 
                         uint32_t size, 
-                        co_allocator_t *alloc=nullptr, 
-                        void * user=nullptr);
+                        co_allocator_t *alloc=0,
+                        void * user=0);
 
 /** \brief Context switch to a different coroutine.
  */
 void co_yield(co_thread_t * self, 
-              co_thread_t * to = nullptr);
+              co_thread_t * to=0);
 
 /** \brief Context switch to the main thread.
  *

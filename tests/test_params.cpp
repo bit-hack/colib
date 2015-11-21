@@ -3,6 +3,7 @@
  */
 #include <stdint.h>
 #include "test.h"
+#include "coconfig.h"
 #include "colib.h"
 
 static void * param1 = (void*) "param1";

@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include "test.h"
+#include "coconfig.h"
 #include "colib.h"
 
 extern int32_t test_multiple();

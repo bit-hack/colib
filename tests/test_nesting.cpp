@@ -3,6 +3,7 @@
  */
 #include <stdint.h>
 #include "test.h"
+#include "coconfig.h"
 #include "colib.h"
 
 #define test_assert(X) if (!(X)) {return -1;}

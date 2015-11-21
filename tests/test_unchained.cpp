@@ -4,6 +4,7 @@
  */
 #include <stdint.h>
 #include "test.h"
+#include "coconfig.h"
 #include "colib.h"
 
 static const uint32_t num_threads = 64;

@@ -40,3 +40,8 @@
 #if !defined(CO_CREATE)
   #error "unsupported colib platform"
 #endif
+
+// make sure nullptr is defined
+#if !defined(_MSC_VER) && __cplusplus <= 199711L
+  #define nullptr 0
+#endif
