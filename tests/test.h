@@ -15,6 +15,6 @@ uint64_t rand64(void) {
     x ^= x >> 12;
     x ^= x << 25;
     x ^= x >> 27;
-    return x * UINT64_C(2685821657736338717);
+    return x * 0x2545f4914f6cdd1dull;
 }
 } // namespace {}
