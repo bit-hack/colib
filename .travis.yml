@@ -1,4 +1,9 @@
 language: cpp
+
+os:
+  - linux
+  - osx
+
 compiler:
   - gcc
   - clang
@@ -16,11 +21,16 @@ addons:
       - libc6-i386
       - ninja-build
 
+env:
+  - CONFIGURATION=Debug
+  - CONFIGURATION=Release
+
 script:
   - export CXX="g++-4.8"
   - export CC="gcc-4.8"
   - cmake --version
   - mkdir build
   - cd build
-  - cmake -DCOLIB_TARGET=LINUX_AMD64 ..
+  - if [$TRAVIS_OS_NAME == linux]; then cmake -DCOLIB_TARGET=LINUX_AMD64 -DCMAKE_BUILD_TYPE=$CONFIGURATION ..; fi
+  - if [$TRAVIS_OS_NAME == osx]; then cmake -DCOLIB_TARGET=MAC_AMD64 -DCMAKE_BUILD_TYPE=$CONFIGURATION ..; fi
   - make
