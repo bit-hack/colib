@@ -25,4 +25,4 @@ script:
   - cd build
   - cmake -DCOLIB_TARGET=LINUX_AMD64 -DCMAKE_BUILD_TYPE=$CONFIGURATION ..
   - make
-  - ./tests/colib_test
+  - ./tests/colib_tests
