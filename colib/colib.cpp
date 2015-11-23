@@ -142,21 +142,20 @@ bool co_create_generic_x86(co_thread_t * t, co_func_t f, uint32_t size) {
 }
 
 // ARM V7 ABI
-// callee save: r4..r11 (r9*)
-// note: preserve the callee save VFPU registers?
+// callee save: r4..r11, lr
 //
-bool co_create_linux_arm32(co_thread_t * t, co_func_t f, uint32_t size) {
+bool co_create_linux_arm(co_thread_t * t, co_func_t f, uint32_t size) {
     uint8_t * & rsp = t->sp_;
     // push the thread object
     push<co_thread_t*>(rsp, t);
     // return address for thread func
-    push<void*>(rsp, (void*) co_ret_asm);
-    // co-routine entry point
     push<void*>(rsp, (void*) f);
+    // co-routine entry point
+    push<void*>(rsp, (void*) co_entry_asm);
     // push dummy callee save registers
-    for (uint32_t i=0; i<7; ++i)
-        push<uint64_t>(rsp, 0);
-    return false;
+    for (uint32_t i=0; i<8; ++i)
+        push<uint32_t>(rsp, 0xabcdef00 + i);
+    return true;
 }
 
 // MIPS32 ABI

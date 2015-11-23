@@ -11,6 +11,9 @@
   #if defined(__MIPSEL__)
     #define IS_MIPS
   #endif
+  #if defined(__ARMEL__)
+    #define IS_ARM
+  #endif
 #endif
 
 #if defined(_MSC_VER)
@@ -39,7 +42,9 @@
 #if defined(IS_LINUX) && defined(IS_MIPS)
   #define CO_CREATE co_create_linux_mips
 #endif
-
+#if defined(IS_LINUX) && defined(IS_ARM)
+  #define CO_CREATE co_create_linux_arm
+#endif
 #if defined(IS_WINDOWS) && defined(IS_X64)
   #define CO_CREATE co_create_win_x64
 #endif
