@@ -5,37 +5,6 @@ COLIB is a very lightweight implementation of co-routines for C++.  The library 
 
 Adding a new target is super easy.  Just read your ABI doc, implement one C++ function and two in assembly and you are done!
 
-## Target support:
-
-Platform support
-
-|Windows |Status     |
-|--------|-----------|
-| x86    | Stable    |
-| x86_64 | Stable    |
-
-|Linux    |Status    |  
-|---------|----------|
-| x86     | Stable   |  
-| x64_64  | Stable   |  
-| Mipsel  | Working  |  
-| Armv7   | Working  |  
-| Aarch64 | Todo     |  
-| Mips64  | Todo     |  
-| PowerPC | Todo     |  
-
-|OS X    |Status       |
-|--------|-------------|
-| X86_64 | Working     |
-
-Compiler support:
-
-|Compiler  |OS             |
-|----------|---------------|
-| GCC      | Linux         |
-| CLANG    | Linux, OSX    |
-| MSVC     | Windows       |
-
 ## Example:
 
 ```C++
@@ -61,3 +30,30 @@ int test_simple() {
     return 0;
 }
 ```
+
+## Target support:
+
+|Windows |Status     |
+|--------|-----------|
+| x86    | Stable    |
+| x86_64 | Stable    |
+
+|Linux    |Status    |  
+|---------|----------|
+| x86     | Stable   |  
+| x64_64  | Stable   |  
+| Mipsel  | Working  |  
+| Armv7   | Working  |  
+| Aarch64 | Todo     |  
+| Mips64  | Todo     |  
+| PowerPC | Todo     |  
+
+|OS X    |Status       |
+|--------|-------------|
+| X86_64 | Working     |
+
+|Compiler  |OS             |
+|----------|---------------|
+| GCC      | Linux         |
+| CLANG    | Linux, OSX    |
+| MSVC     | Windows       |
