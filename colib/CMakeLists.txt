@@ -7,7 +7,8 @@ set_property(CACHE COLIB_TARGET PROPERTY STRINGS
   WIN_x86_64
   MAC_AMD64
   LINUX_x86
-  LINUX_AMD64)
+  LINUX_AMD64
+  LINUX_ARM)
 
 set(SOURCE_FILES colib.cpp coconfig.h colib.h)
 
@@ -32,8 +33,8 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" OR ${CMAKE_CXX_COMPILER_ID} STREQUAL 
   enable_language(C ASM)
 #  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
-  if(${COLIB_TARGET} STREQUAL "LINUX_ARMV7A")
-    set(ASM_FILES colib_gas_linux_arm32.s)
+  if(${COLIB_TARGET} STREQUAL "LINUX_ARM")
+    set(ASM_FILES colib_gas_linux_arm.s)
     message(STATUS "colib target is arm32")
   endif()
 
