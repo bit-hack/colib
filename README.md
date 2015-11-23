@@ -42,11 +42,11 @@ int main() {
 |---------|----------|
 | x86     | Stable   |  
 | x64_64  | Stable   |  
-| Mipsel  | Working  |  
-| Armv7   | Working  |  
-| Aarch64 | Todo     |  
-| Mips64  | Todo     |  
-| PowerPC | Todo     |  
+| Mipsel  | Stable   |  
+| Armv7   | Stable   |  
+| Aarch64 | .        |  
+| Mips64  | .        |  
+| PowerPC | .        |  
 
 |OS X    |Status       |
 |--------|-------------|
@@ -57,3 +57,7 @@ int main() {
 | GCC      | Linux         |
 | CLANG    | Linux, OSX    |
 | MSVC     | Windows       |
+
+
+[![Build Status](https://travis-ci.org/8BitPimp/colib.svg?branch=master)](https://travis-ci.org/8BitPimp/colib)
+[![Build status](https://ci.appveyor.com/api/projects/status/9m5g02p9cdiktoou/branch/master?svg=true)](https://ci.appveyor.com/project/8BitPimp/colib/branch/master)
