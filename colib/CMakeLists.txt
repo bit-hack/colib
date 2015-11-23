@@ -7,7 +7,8 @@ set_property(CACHE COLIB_TARGET PROPERTY STRINGS
   WIN_x86_64
   MAC_AMD64
   LINUX_x86
-  LINUX_AMD64)
+  LINUX_AMD64
+  LINUX_MIPS)
 
 set(SOURCE_FILES colib.cpp coconfig.h colib.h)
 
@@ -47,10 +48,16 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" OR ${CMAKE_CXX_COMPILER_ID} STREQUAL 
     set(ASM_FILES colib_gas_linux_x86.s)
   endif()
 
+  if(${COLIB_TARGET} STREQUAL "LINUX_MIPS")
+    set(ASM_FILES colib_gas_linux_mips.s)
+    message(STATUS "colib target is Linux Mips")
+  endif()
+
   if(${COLIB_TARGET} STREQUAL "MAC_AMD64")
     set(ASM_FILES colib_gas_mac_x64.s)
     message(STATUS "colib target is Mac OS X x64")
   endif()
+
 endif()
 
 if(NOT ASM_FILES)
