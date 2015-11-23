@@ -16,6 +16,7 @@
 #endif
 
 // assembly provided routines
+extern "C" void co_entry_asm();
 extern "C" void co_yield_asm(co_thread_t * self);
 extern "C" void co_ret_asm();
 
@@ -96,6 +97,7 @@ bool co_create_posix_x64(co_thread_t * t, co_func_t f, uint32_t size) {
     // push dummy callee save registers
     for (uint32_t i=0; i<6; ++i)
         push<void*>(rsp, 0);
+    // todo: save FP
     return true;
 }
 
@@ -118,6 +120,7 @@ bool co_create_win_x64(co_thread_t * t, co_func_t f, uint32_t size) {
     // push dummy callee save registers
     for (uint32_t i=0; i<8; ++i)
         push<void*>(rsp, 0);
+    // todo: save FP
     return true;
 }
 
@@ -157,13 +160,20 @@ bool co_create_linux_arm32(co_thread_t * t, co_func_t f, uint32_t size) {
 }
 
 // MIPS32 ABI
-// callee save: s0-s8
+// callee save: s0-s8, fp
 //
-bool co_create_linux_mips32(co_thread_t * t, co_func_t f, uint32_t size) {
+bool co_create_linux_mips(co_thread_t * t, co_func_t f, uint32_t size) {
     uint8_t * & sp = t->sp_;
     // push the thread object
     push<co_thread_t*>(sp, t);
-    return false;
+    // push co-routine entry point
+    push<void*>(sp, (void*) f);
+    // push co-routine entry trampoline
+    push<void*>(sp, (void*) co_entry_asm);
+    // push dummy callee save registers
+    for (uint32_t i=0; i<9; ++i)
+        push<uint32_t>(sp, 0xaabbcc00+i);
+    return true;
 }
 
 // insert a cookie at the bottom of the stack
