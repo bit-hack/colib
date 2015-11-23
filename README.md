@@ -17,7 +17,7 @@ void thread_func(co_thread_t * co) {
     printf("4,");
 }
 
-int test_simple() {
+int main() {
     co_thread_t * host = co_init(nullptr);
     co_thread_t * thread = co_create (host, thread_func, 1024 * 512, nullptr);
     printf("1,");
