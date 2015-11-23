@@ -3,6 +3,11 @@
 
 .CODE
 
+; unused
+co_entry_asm PROC
+    ret
+co_entry_asm ENDP
+
 ; void yield_( co_thread_t * thread )
 ;   thread -> rcx
 ;
@@ -41,7 +46,7 @@ co_yield_asm ENDP
 ; when a coroutine function returns, it will execute this function
 ; since it was pushed as the return address on the stack.  below this
 ; address the coroutine thread object has been pushed.  we pop that
-; from the stack and switch contexts, back to the main thread.
+; from the stack and switch contexts, back to the previous thread.
 co_ret_asm PROC
 ;    int 3
     ; we move our thread object into rcx

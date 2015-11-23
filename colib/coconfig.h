@@ -28,7 +28,7 @@
 #endif
 
 #if defined(IS_LINUX) && defined(IS_X64)
-  #define CO_CREATE co_create_linux_x64
+  #define CO_CREATE co_create_posix_x64
 #endif
 #if defined(IS_LINUX) && defined(IS_X86)
   #define CO_CREATE co_create_generic_x86
@@ -43,7 +43,7 @@
   #define CO_CREATE co_create_linux_arm32
 #endif
 #if defined(IS_MAC) && defined(IS_X64)
-  #define CO_CREATE co_create_mac_x64
+  #define CO_CREATE co_create_posix_x64
 #endif
 
 // throw error if CO_CREATE is not defined

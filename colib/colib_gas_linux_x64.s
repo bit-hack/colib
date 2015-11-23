@@ -1,10 +1,15 @@
 # colib yield for linux x64 (AMD64 ABI)
 # GAS assembly
 
+.global co_entry_asm
 .global co_yield_asm
 .global co_ret_asm
 
 .text
+
+# unused
+co_entry_asm:
+    ret
 
 # void (co_yield_asm)( co_thread_t * thread );
 #   thread -> rdi

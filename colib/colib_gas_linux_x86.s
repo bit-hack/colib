@@ -1,10 +1,15 @@
 # colib yield for linux x86 (intel x86 abi)
 # GAS assembly
 
+.global co_entry_asm
 .global co_yield_asm
 .global co_ret_asm
 
 .text
+
+# unused
+co_entry_asm:
+    ret
 
 # void yield_( co_thread_t * thread )
 #   thread pushed on stack

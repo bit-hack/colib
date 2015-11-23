@@ -5,6 +5,11 @@
 .MODEL FLAT,C
 .CODE
 
+; unused
+co_entry_asm PROC
+    ret
+co_entry_asm ENDP
+
 ; void yield_( co_thread_t * thread )
 ;   thread pushed on stack
 ;

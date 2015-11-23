@@ -1,10 +1,15 @@
 # colib yield for osx x64 (AMD64 ABI)
 # GAS assembly
 
+.global _co_entry_asm
 .global _co_yield_asm
 .global _co_ret_asm
 
 .text
+
+# unused
+_co_entry_asm:
+    ret
 
 # void (co_yield_asm)( co_thread_t * thread );
 _co_yield_asm:
