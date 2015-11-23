@@ -2,7 +2,6 @@ language: cpp
 
 os:
   - linux
-  - osx
 
 compiler:
   - gcc
@@ -15,7 +14,6 @@ addons:
   apt:
     packages:
       - cmake
-      - ninja-build
 
 env:
   - CONFIGURATION=Debug
@@ -25,6 +23,6 @@ script:
   - cmake --version
   - mkdir build
   - cd build
-  - if ["$TRAVIS_OS_NAME" == "linux"]; then cmake -DCOLIB_TARGET=LINUX_AMD64 -DCMAKE_BUILD_TYPE=$CONFIGURATION ..; fi
-  - if ["$TRAVIS_OS_NAME" == "osx"]; then cmake -DCOLIB_TARGET=MAC_AMD64 -DCMAKE_BUILD_TYPE=$CONFIGURATION ..; fi
+  - cmake -DCOLIB_TARGET=LINUX_AMD64 -DCMAKE_BUILD_TYPE=$CONFIGURATION ..
   - make
+  - ./tests/colib_test
