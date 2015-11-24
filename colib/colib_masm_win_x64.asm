@@ -26,8 +26,8 @@ co_yield_asm PROC
     push R14
     push R15
     ; thread->callee_->sp_ = RSP
-    mov QWORD PTR rdx, [rcx+8]
-    mov QWORD PTR [rdx], rsp
+    mov QWORD PTR rax, [rcx+8]
+    mov QWORD PTR [rax], rsp
     ; RSP = thread->sp_
     mov QWORD PTR rsp, [rcx]
     ; pop callee save registers
@@ -53,8 +53,8 @@ co_ret_asm PROC
     ; we add 32 here to step over the 'shadow space'
     mov rcx, [rsp+32]
     ; RSP = thread->callee_->sp_
-    mov QWORD PTR rdx, [rcx+8]
-    mov QWORD PTR rsp, [rdx]
+    mov QWORD PTR rax, [rcx+8]
+    mov QWORD PTR rsp, [rax]
     ; thread->sp_ = nullptr
     mov QWORD PTR [rcx], 0
     ; pop callee save registers

@@ -3,6 +3,7 @@
  * clobbered between yields.
  */
 #include <stdint.h>
+#include <stdio.h>
 #include <math.h>
 #include "test.h"
 #include "coconfig.h"
@@ -10,7 +11,7 @@
 
 // this coroutine function computes an iterative square route
 static
-void thread_func(co_thread_t * self) {
+void thread_func_fp(co_thread_t * self) {
 
     float * ans = (float*)co_get_user(self);
     float x = * ans;
@@ -23,7 +24,7 @@ void thread_func(co_thread_t * self) {
     }
     float y = (1+x)/2;
     float z = 0;
-    for (uint32_t to=1000; to>0; --to)
+    for (uint32_t to=10000; to>0; --to)
     {
         z = y;
         y = (y + x/y) / 2;
@@ -56,7 +57,7 @@ int32_t test_fpregs() {
 
     // create all of the threads
     for (uint32_t i=0; i<num_threads; ++i) {
-        thread[i] = co_create (host, thread_func, 1024 * 512, nullptr);
+        thread[i] = co_create (host, thread_func_fp, 1024 * 512, nullptr);
         assert(thread[i]);
         co_set_user(thread[i], scratch+i);
     }
@@ -70,8 +71,9 @@ int32_t test_fpregs() {
     // check our results are not too far off
     for (uint32_t i=0; i<num_threads; ++i) {
         float diff = fabsf(scratch[i]-result[i]);
-        if (diff > 0.01f)
+        if (diff > 0.01f) {
             return -1;
+        }
     }
 
     // success

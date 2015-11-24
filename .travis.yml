@@ -6,7 +6,6 @@ os:
 compiler:
   - gcc
   - clang
-  - scan-build
 
 sudo: false
 

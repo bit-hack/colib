@@ -66,7 +66,7 @@ void co_free(co_allocator_t *mem, void *alloc) {
 
 // align the top of the stack as needed
 uint8_t * co_align(uint8_t * p) {
-    uint64_t shl = uint64_t (p) & 0x7;
+    uint64_t shl = uint64_t (p) & 0xf;
     return p - shl;
 }
 
@@ -88,6 +88,9 @@ void push(uint8_t * & s, const type_t t) {
 //
 bool co_create_posix_x64(co_thread_t * t, co_func_t f, uint32_t size) {
     uint8_t * & rsp = t->sp_;
+    // push padding to realign the stack pointer
+    for (uint32_t i = 0; i < 7; ++i)
+        push<void*>(rsp, (void*)0);
     // push the thread object
     push<co_thread_t*>(rsp, t);
     // return address for thread func
@@ -97,7 +100,6 @@ bool co_create_posix_x64(co_thread_t * t, co_func_t f, uint32_t size) {
     // push dummy callee save registers
     for (uint32_t i=0; i<6; ++i)
         push<void*>(rsp, 0);
-    // todo: save FP
     return true;
 }
 
@@ -106,6 +108,9 @@ bool co_create_posix_x64(co_thread_t * t, co_func_t f, uint32_t size) {
 //
 bool co_create_win_x64(co_thread_t * t, co_func_t f, uint32_t size) {
     uint8_t * & rsp = t->sp_;
+    // push padding to realign the stack pointer
+    for (uint32_t i = 0; i < 1; ++i)
+        push<void*>(rsp, (void*)0);
     // push the thread object
     push<co_thread_t*>(rsp, t);
     // we must reserve 32bytes of space as 'shadow space'
@@ -120,7 +125,6 @@ bool co_create_win_x64(co_thread_t * t, co_func_t f, uint32_t size) {
     // push dummy callee save registers
     for (uint32_t i=0; i<8; ++i)
         push<void*>(rsp, 0);
-    // todo: save FP
     return true;
 }
 

@@ -28,6 +28,7 @@ struct test_t {
     const char * name_;
 };
 
+static
 test_t tests[] = {
     { test_simple,    "test_simple"    },
     { test_factoral,  "test_factoral"  },
@@ -41,36 +42,53 @@ test_t tests[] = {
     { nullptr, nullptr }
 };
 
+static
 const char * test_name = "";
 
 #if defined(_MSC_VER)
+static
 LONG CALLBACK segv_handler(PEXCEPTION_POINTERS info) {
-    printf("! crash '%s'\n", test_name);
+    if (info->ExceptionRecord->ExceptionCode == EXCEPTION_BREAKPOINT) {
+        printf("! fail  '%s'\n", test_name);
+    }
+    else {
+        printf("! crash '%s'\n", test_name);
 #if defined(_M_X64)
-    printf("  pc  @ 0x%016llx\n", info->ContextRecord->Rip);
-    printf("  sp  @ 0x%016llx\n", info->ContextRecord->Rsp);
+        printf("  pc  @ 0x%016llx\n", info->ContextRecord->Rip);
+        printf("  sp  @ 0x%016llx\n", info->ContextRecord->Rsp);
 #else
-    printf("  pc  @ 0x%08lx\n", info->ContextRecord->Eip);
-    printf("  sp  @ 0x%08lx\n", info->ContextRecord->Esp);
+        printf("  pc  @ 0x%08lx\n", info->ContextRecord->Eip);
+        printf("  sp  @ 0x%08lx\n", info->ContextRecord->Esp);
 #endif
+    }
     getchar();
     exit(1);
 }
 
+static
 void setup() {
-    AddVectoredExceptionHandler(1, segv_handler);
+//    AddVectoredExceptionHandler(1, segv_handler);
 }
 #else
+static
 void segv_handler(int signal) {
     printf("! crash '%s'\n", test_name);
     exit(1);
 }
 
+static
+void sigtrap_handler(int signal) 
+    printf("! fail  '%s'\n", test_name);
+    exit(1);
+}
+
+static
 void setup() {
     signal(SIGSEGV, segv_handler);
     signal(SIGABRT, segv_handler);
-    signal(SIGINT,  segv_handler);
     signal(SIGILL,  segv_handler);
+    signal(SIGINT,  segv_handler);
+    signal(SIGTRAP, sigtrap_handler);
 }
 #endif
 
@@ -96,5 +114,6 @@ int main() {
         }
     }
 
+    getchar();
     return fails;
 }
