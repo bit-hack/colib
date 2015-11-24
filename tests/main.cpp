@@ -77,7 +77,7 @@ void segv_handler(int signal) {
 }
 
 static
-void sigtrap_handler(int signal) 
+void sigtrap_handler(int signal) {
     printf("! fail  '%s'\n", test_name);
     exit(1);
 }
