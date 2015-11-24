@@ -61,7 +61,6 @@ LONG CALLBACK segv_handler(PEXCEPTION_POINTERS info) {
         printf("  sp  @ 0x%08lx\n", info->ContextRecord->Esp);
 #endif
     }
-    getchar();
     exit(1);
 }
 
@@ -114,6 +113,5 @@ int main() {
         }
     }
 
-    getchar();
     return fails;
 }
